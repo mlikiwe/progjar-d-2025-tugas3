@@ -24,10 +24,10 @@ class FileProtocol:
     def proses_string(self, string_datamasuk=''):
         logging.warning(f"string diproses: {string_datamasuk}")
         try:
-            c = shlex.split(string_datamasuk)
-            c_request = c[0].strip().lower()
+            c = json.loads(string_datamasuk)
+            c_request = c.get('command', '').lower()
             logging.warning(f"memproses request: {c_request}")
-            params = c[1:]
+            params = c.get('params', [])
             logging.warning(f"params: {params}")
             cl = getattr(self.file, c_request)(params)
             return json.dumps(cl)

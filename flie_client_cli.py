@@ -13,6 +13,7 @@ def send_command(command_str=""):
     logging.warning(f"connecting to {server_address}")
     try:
         logging.warning(f"sending message ")
+        command_str = json.dumps(command_str) + '\r\n\r\n'
         sock.sendall(command_str.encode())
         # Look for the response, waiting until socket is done (no more data)
         data_received="" #empty string
@@ -38,7 +39,10 @@ def send_command(command_str=""):
 
 
 def remote_list():
-    command_str=f"LIST\r\n"
+    command_str={
+        'command': 'LIST',
+        'params': []
+    }
     hasil = send_command(command_str)
     if (hasil['status']=='OK'):
         print("daftar file : ")
@@ -50,7 +54,10 @@ def remote_list():
         return False
 
 def remote_get(filename=""):
-    command_str=f"GET {filename}\r\n"
+    command_str={
+        'command': 'GET',
+        'params': [filename]
+    }
     hasil = send_command(command_str)
     if (hasil['status']=='OK'):
         #proses file dalam bentuk base64 ke bentuk bytes
@@ -78,7 +85,10 @@ def remote_upload(filename=""):
         if missing_padding != 0:
             encoded_content += '=' * (4 - missing_padding)
 
-        command_str = f'UPLOAD "{filename}" {encoded_content}\r\n'
+        command_str = {
+            'command': 'UPLOAD',
+            'params': [filename, encoded_content]
+        }
         hasil = send_command(command_str)
         if hasil['status'] == 'OK':
             print(f"File '{filename}' berhasil diupload.")
@@ -91,7 +101,10 @@ def remote_upload(filename=""):
         return False
     
 def remote_delete(filename=""):
-    command_str = f"DELETE {filename}\r\n"
+    command_str = {
+        'command': 'DELETE',
+        'params': [filename]
+    }
     hasil = send_command(command_str)
     if hasil['status'] == 'OK':
         print(f"File '{filename}' berhasil dihapus.")
